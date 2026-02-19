@@ -4,7 +4,7 @@ A modern React application built with Vite, featuring fast development and optim
 
 ## 🚀 Live Demo
 
-**Deployed on Vercel:** [YOUR_VERCEL_URL_HERE](https://expense-tracker-jeltzoaqa-aditya-bhanushalis-projects.vercel.app)
+**Deployed on Vercel:** [https://expense-tracker-jeltzoaqa-aditya-bhanushalis-projects.vercel.app]
 
 ## 📋 Features
 
