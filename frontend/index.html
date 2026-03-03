@@ -25,15 +25,35 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- PWA Service Worker Registration -->
     <script>
-      // Register Service Worker for offline functionality
+      // Check browser support and register service worker
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/service-worker.js').catch((error) => {
-            console.log('Service Worker registration failed:', error)
-          })
+          navigator.serviceWorker.register('/service-worker.js')
+            .then((registration) => {
+              console.log('✅ Service Worker registered successfully', registration)
+              
+              // Check for updates
+              setInterval(() => {
+                registration.update()
+              }, 60000) // Check every minute
+            })
+            .catch((error) => {
+              console.log('❌ Service Worker registration failed:', error)
+            })
         })
       }
+      
+      // Uninstall old service workers
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        registrations.forEach((registration) => {
+          if (registration.scope !== window.location.origin + '/') {
+            registration.unregister()
+          }
+        })
+      })
     </script>
   </body>
 </html>
