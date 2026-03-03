@@ -1,84 +1,54 @@
 // Service Worker for Expense Tracker PWA
-// Version: 1.0.0
-// Enables offline functionality, caching, and app installation
+// Version: 1.0.1 - Network First Strategy
+// Always fetches latest content, falls back to cache when offline
 
-const CACHE_VERSION = 'expense-tracker-v1'
-const STATIC_CACHE = `${CACHE_VERSION}-static`
-const DYNAMIC_CACHE = `${CACHE_VERSION}-dynamic`
+const CACHE_VERSION = 'expense-tracker-v2'
 
-// Install event - cache essential files
+// Install event - skip waiting to activate immediately
 self.addEventListener('install', (event) => {
   console.log('Service Worker installing...')
-  
-  event.waitUntil(
-    caches.open(STATIC_CACHE).then((cache) => {
-      console.log('Caching app shell')
-      return cache.addAll([
-        '/',
-        '/index.html',
-        '/manifest.json'
-      ]).catch((error) => {
-        console.log('Cache addAll error (expected during development):', error)
-        return Promise.resolve()
-      })
-    })
-  )
-  
-  // Immediately activate
   self.skipWaiting()
 })
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - NETWORK FIRST strategy (always get fresh content)
 self.addEventListener('fetch', (event) => {
-  // Skip cross-origin requests and non-GET requests
-  if (event.request.method !== 'GET' || !event.request.url.includes(self.location.origin)) {
+  // Skip non-GET requests
+  if (event.request.method !== 'GET') {
     return
   }
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      // Return cached version if available
-      if (cachedResponse) {
-        return cachedResponse
-      }
-
-      // Fetch from network and cache
-      return fetch(event.request)
-        .then((response) => {
-          // Don't cache non-successful responses
-          if (!response || response.status !== 200 || response.type === 'error') {
-            return response
-          }
-
-          // Clone the response
-          const responseToCache = response.clone()
-
-          // Cache successful responses
-          if (event.request.method === 'GET') {
-            caches.open(DYNAMIC_CACHE).then((cache) => {
-              cache.put(event.request, responseToCache)
-            })
-          }
-
-          return response
+    // Try network first
+    fetch(event.request)
+      .then((response) => {
+        // Clone and cache the fresh response
+        const responseToCache = response.clone()
+        
+        caches.open(CACHE_VERSION).then((cache) => {
+          cache.put(event.request, responseToCache)
         })
-        .catch(() => {
-          // Offline fallback - return cached index.html for navigation requests
+        
+        return response
+      })
+      .catch(() => {
+        // Network failed, try cache
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse
+          }
+          
+          // For navigation requests, return cached index.html
           if (event.request.mode === 'navigate') {
             return caches.match('/index.html')
           }
           
-          // Return a generic offline response for other requests
-          return new Response('Offline - Resource not available', {
-            status: 503,
-            statusText: 'Service Unavailable'
-          })
+          return new Response('Offline', { status: 503 })
         })
-    })
+      })
   )
 })
 
-// Activate event - clean up old caches
+// Activate event - clean up old caches and take control immediately
 self.addEventListener('activate', (event) => {
   console.log('Service Worker activating...')
   
@@ -86,17 +56,17 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (!cacheName.includes(CACHE_VERSION)) {
+          if (cacheName !== CACHE_VERSION) {
             console.log('Deleting old cache:', cacheName)
             return caches.delete(cacheName)
           }
         })
       )
+    }).then(() => {
+      // Take control of all clients immediately
+      return self.clients.claim()
     })
   )
-  
-  // Take control of all pages immediately
-  self.clients.claim()
 })
 
-console.log('Service Worker loaded')
+console.log('Service Worker loaded - Network First')
