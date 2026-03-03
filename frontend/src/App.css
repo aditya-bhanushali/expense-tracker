@@ -286,9 +286,10 @@
 
 .toolbar {
   display: grid;
-  grid-template-columns: 1fr 190px;
+  grid-template-columns: 1fr 190px auto;
   gap: 10px;
   margin-bottom: 10px;
+  align-items: center;
 }
 
 .chip-row {
@@ -424,6 +425,28 @@
 
 .delete-btn:hover {
   background: #fecdc9;
+}
+
+.clear-all-btn {
+  border: none;
+  border-radius: 8px;
+  background: #ffebee;
+  color: #d32f2f;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.clear-all-btn:hover {
+  background: #ffcdd2;
+  transform: scale(1.05);
+}
+
+.clear-all-btn:active {
+  transform: scale(0.98);
 }
 
 @keyframes fade-up {

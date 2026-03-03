@@ -86,6 +86,22 @@ export function Card() {
     setExpenses((prev) => prev.filter((expense) => expense.id !== id))
   }
 
+  const clearAllExpenses = () => {
+    if (expenses.length === 0) {
+      alert("No expenses to clear!")
+      return
+    }
+
+    const confirmed = window.confirm(
+      `⚠️ Are you sure you want to delete ALL ${expenses.length} expense(s)? This cannot be undone!`
+    )
+
+    if (confirmed) {
+      setExpenses([])
+      alert("✅ All expenses have been cleared successfully!")
+    }
+  }
+
   const filteredExpenses = useMemo(() => {
     return expenses.filter((expense) => {
       const matchesSearch = expense.title.toLowerCase().includes(searchText.toLowerCase())
@@ -295,6 +311,14 @@ export function Card() {
                 <option value="amount-high">Amount high to low</option>
                 <option value="amount-low">Amount low to high</option>
               </select>
+              <button 
+                type="button"
+                className="clear-all-btn"
+                onClick={clearAllExpenses}
+                title="Delete all expenses permanently"
+              >
+                🗑️ Clear history
+              </button>
             </div>
 
             <div className="chip-row">
