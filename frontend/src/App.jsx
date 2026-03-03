@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useMemo, useState, useEffect } from "react"
 import "./App.css"
 
 const CATEGORIES = [
@@ -28,7 +28,17 @@ const inr = new Intl.NumberFormat("en-IN", {
 })
 
 export function Card() {
-  const [expenses, setExpenses] = useState([])
+  // Load expenses from localStorage on initial render
+  const [expenses, setExpenses] = useState(() => {
+    try {
+      const saved = localStorage.getItem("expenses")
+      return saved ? JSON.parse(saved) : []
+    } catch (error) {
+      console.error("Failed to load expenses from localStorage:", error)
+      return []
+    }
+  })
+
   const [title, setTitle] = useState("")
   const [amount, setAmount] = useState("")
   const [category, setCategory] = useState("Food")
@@ -38,6 +48,15 @@ export function Card() {
   const [sortBy, setSortBy] = useState("newest")
   const [budget, setBudget] = useState(2000)
   const [showForm, setShowForm] = useState(true)
+
+  // Save expenses to localStorage whenever they change
+  useEffect(() => {
+    try {
+      localStorage.setItem("expenses", JSON.stringify(expenses))
+    } catch (error) {
+      console.error("Failed to save expenses to localStorage:", error)
+    }
+  }, [expenses])
 
   const addExpense = (event) => {
     event.preventDefault()
