@@ -159,12 +159,11 @@ Potential next steps for the project include:
 - Dark mode
 - Better API integration between frontend and backend
 
+## 👥 Contributors
+
+- **Aditya Bhanushali** — [@aditya-bhanushali](https://github.com/aditya-bhanushali)
+- **Manthan Gori** — [@manthan-gori](https://github.com/manthan-gori)
+
 ## 📄 License
 
 This project currently does not specify a license.
-
-## 👤 Author
-
-**Aditya Bhanushali**
-
-GitHub: [@aditya-bhanushali](https://github.com/aditya-bhanushali)
